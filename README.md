@@ -1,4 +1,4 @@
-# Blaster Force
+# Blaster Force - In Development
 
 Blaster Force is a javascript game built with OOP that utilizes requestAnimationFrame and canvas to move the players along.
 
