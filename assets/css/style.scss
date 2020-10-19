@@ -1,0 +1,23 @@
+#container {
+  position: relative;
+}
+#container canvas, #message {
+  position: absolute;
+}
+
+img#sprite {
+  display:none;
+}
+
+div#message {
+  display:none;
+  border:1px solid black;
+  border-radius: 5px;
+  background-color: gainsboro;
+  font-family: Verdana, Arial;
+  font-weight:bold;
+  font-size:1.2em;  
+  margin-top:20%;
+  margin-left:20%;
+  padding:50px;
+}
