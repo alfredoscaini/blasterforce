@@ -4,6 +4,7 @@ export class Sprite {
     this.id        = 0;
     this.name      = '';
     this.playable  = false;
+    this.points    = 0;
     this.enemy     = false;
     this.isExit    = false;
     this.isMissile = false;    
@@ -97,11 +98,11 @@ export class Sprite {
 
     // Apply horizonal friction and acceleration
     this.velocity.x += this.acceleration.x;
-    this.velocity.x *= this.acceleration.friction;
+    if (!this.enemy) { this.velocity.x *= this.acceleration.friction; }
 
     // Apply vertical friction, acceleration
     this.velocity.y += this.acceleration.y;
-    this.velocity.y *= this.acceleration.friction;
+    if (!this.enemy) { this.velocity.y *= this.acceleration.friction; }
 
     // Reset the sprite position
     this.position.x += this.velocity.x;
@@ -112,10 +113,16 @@ export class Sprite {
     this.isPlatform(collision.collision);
 
     // Boundaries
-    if (this.position.x < 0) { this.bounce('left', 0); }
-    if (this.position.y < 0) { this.bounce('top', 0); }
-    if ((this.position.x + this.image.dimensions.width) > boundary.width)   { this.bounce('right', boundary.width); }
-    if ((this.position.y + this.image.dimensions.height) > boundary.height) { this.bounce('bottom', boundary.height); }
+    if (this.position.x < 0) { this.position.x = 0; }
+    if (this.position.y < 0) { this.position.y = 0; }
+    if ((this.position.x + this.image.dimensions.width) > boundary.width)   { this.position.x = boundary.width - this.image.dimensions.width; }
+
+    if ((this.position.y + this.image.dimensions.height) > boundary.height) { 
+      if (this.enemy) {
+        this.won = true;
+      }
+      this.position.y = boundary.height - this.image.dimensions.height; 
+    }
     
     return {
       missile: hasFired,
@@ -287,6 +294,7 @@ export class Sprite {
     if (this.isMissile) {
       sprite.dead  = true;
       this.dead    = true;
+      return;
     }
 
     if ((sprite.enemy && !this.enemy) || this.playable) {
@@ -294,11 +302,8 @@ export class Sprite {
         case 'top':
         case 'left':
         case 'right':
-          this.dead = true; // player died
-        break;
-
         case 'bottom':
-          sprite.dead = true;
+          this.dead = true; // player died
         break;
       }
     }
@@ -313,37 +318,6 @@ export class Sprite {
   winCollision(collision_side, sprite) {
     if (this.playable && sprite.isExit) {
       this.won = true;
-    }
-  }
-   
-  /**
-   * bounce
-   * adds bounce functionality when hitting the wall
-   */
-  bounce(area, offset) {
-    this.isOnGround = false;
-
-    switch(area) {
-      case 'left':
-        this.velocity.x *= this.velocity.bounce;
-        this.position.x = offset + 0;
-      break;
-
-      case 'top':
-        this.velocity.y *= this.velocity.bounce;
-        this.position.y = offset + 0;
-      break;
-
-      case 'right':
-        this.velocity.x *= this.velocity.bounce;
-        this.position.x = offset - this.image.dimensions.width;
-      break;
-
-      case 'bottom':
-        // we are not going to bounce on the bottom as this messes up our ability to jump.
-        this.position.y = offset - this.image.dimensions.height;
-        this.isOnGround = true;
-      break;
     }
   }
 }

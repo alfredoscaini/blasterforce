@@ -1,9 +1,15 @@
-#container {
-  position: relative;
+body {
+  font-family: 'Orbitron', sans-serif;
+  color: #fff;
+  background-color: #333;
 }
 
-#container canvas, #message {
-  position: absolute;
+#container {
+  text-align: center;
+}
+
+#container canvas {
+  background-color: #fff;
 }
 
 img#sprite {
@@ -13,13 +19,30 @@ img#sprite {
 div#message {
   display: none;
   border: 1px solid black;
-  border-radius: 5px;
+  border-radius: 10px;
   background-color: gainsboro;
-  font-family: Verdana, Arial;
+  color: #000;
   font-weight: bold;
   font-size: 1.2em;
-  margin-top: 20%;
-  margin-left: 20%;
-  padding: 50px;
+  padding: 20px;
+  width: 70%;
+  margin: 10px auto;
+}
+
+header {
+  text-align: center;
+}
+
+h1, p {
+  position: relative;
+}
+
+div.score {
+  border: 1px solid #000;
+  border-radius: 10px;
+  width: 400px;
+  background-color: #eee;
+  color: #036403;
+  margin: 20px auto;
 }
 /*# sourceMappingURL=style.css.map */

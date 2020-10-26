@@ -6,14 +6,25 @@
   <title>Blaster Force - Javascript Canvas Game</title>
   <link rel="stylesheet" href="./assets/css/style.css" />
   <script type="module" defer src="./assets/js/main.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet"> 
 </head>
 <body>
+
+  <header>
+    <h1>Blaster Force</h1>
+    <p>Do you have what it takes to save the world?</p>
+  </header>
 
   <div id="container">
     <img id="sprite" src="./assets/images/shooter.png">
     <canvas id="canvas" width="512" height="512" style="border:1px solid #ccc;"></canvas>
+    
+    <div class="score">
+      <p>Level <span id="current-level"></span> of <span id="game-levels"></span> &nbsp;&nbsp; <strong>Score: <span id="score">0</span></strong></p>
+    </div>
+
     <div id="message"></div>
-  </div>
+  </div>  
   
 </body>
 </html>

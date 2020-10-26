@@ -10,6 +10,10 @@ export class Game {
     this.sprites = [];
     this.level   = 1;
 
+    this.score                 = document.querySelector('#score');
+    this.currentLevelIndicator = document.querySelector('#current-level');
+    this.LevelsIndicator       = document.querySelector('#game-levels');
+
     this.icon = {
       image:      image,
       size:       32
@@ -22,6 +26,9 @@ export class Game {
     this.display    = new Display(canvas_id);
     this.settings   = new GameSettings();
     this.pieces     = this.settings.pieces();
+
+    this.LevelsIndicator.innerHTML       = this.settings.levels;
+    this.currentLevelIndicator.innerHTML = this.level;
   }
 
 
@@ -76,12 +83,13 @@ export class Game {
       let icon = this.pieces[piece];
 
       if (params.id == icon.id) {  
-        obj.name     = piece;      
-        obj.solid    = icon.solid;
-        obj.playable = icon.playable;
-        obj.moveable = icon.moveable;
-        obj.enemy    = icon.enemy;
-        obj.speed    = icon.speed;
+        obj.name      = piece;
+        obj.points    = icon.points;
+        obj.solid     = icon.solid;
+        obj.playable  = icon.playable;
+        obj.moveable  = icon.moveable;
+        obj.enemy     = icon.enemy;
+        obj.speed     = icon.speed;
 
         let image  = new Image();
         image.src = this.icon.image; 
@@ -91,7 +99,7 @@ export class Game {
         obj.position.y = params.position.y * this.icon.size;        
       }
     }
-
+    
     return obj;
   } // loadImage
 
@@ -100,6 +108,10 @@ export class Game {
    * method that starts to play the game
    */
   play() {
+    if (this.player.dead) {
+      return;
+    }
+
     for(let i = 0; i < this.sprites.length; i++) {
       let sprite = this.sprites[i];
 
@@ -120,24 +132,19 @@ export class Game {
       );
 
       // ---------------------------------------------------------------------
+      // Is this is a missile?
+      // ---------------------------------------------------------------------
+      if (sprite.isMissile && Math.floor(previous_position.y) == Math.floor(sprite.position.y)) {
+        sprite.dead = true; // If the missile stops moving it's exploded
+      }
+      // ---------------------------------------------------------------------
+
+      // ---------------------------------------------------------------------
       // has our player fired a missile?
       // ---------------------------------------------------------------------
       if (action.missile) {
-        let missile_id = this.sprites.length;
-        let missile = this.loadImage({
-          id: this.missile, // identifies which piece is on the map; not the sprite id
-          position: {
-            x: 0,
-            y: 0
-          }
-        });
-
-        missile.isMissile  = true;
-        missile.velocity.y = -missile.speed;
-        missile.position.x = previous_position.x;
-        missile.position.y = previous_position.y - 10;
-
-        this.sprites[missile_id] = missile;
+        this.loadMissile(previous_position);
+        continue;
       }
 
       // ---------------------------------------------------------------------
@@ -149,7 +156,17 @@ export class Game {
           this.message('You Died a HORRIBLE DEATH.<br /><br />Refresh to restart.', false);
         } else {
           this.sprites[i].visible = false;
-          this.sprites.splice(i, 1);          
+          this.sprites.splice(i, 1);
+
+          if (sprite.enemy) {
+            this.score.innerHTML = parseInt(this.score.innerHTML) + parseInt(sprite.points);
+          }
+
+          if (this.sprites.length == 1) {
+            this.player.won = true; // You shot down all the enemies
+          }
+
+          continue;
         }                
       }
       // ---------------------------------------------------------------------
@@ -164,19 +181,58 @@ export class Game {
           this.sprites[i].won = false; // reset win result
           this.message('Excellent. Level ' + this.level + ' is next!', true);
           setTimeout(() => {
+            this.currentLevelIndicator.innerHTML = this.level;
             this.state = true;
             this.build(); // proceed to the next level 
             this.play();    
           }, 2100);
         } else {
-          this.message('You Won! Wowzers!<br /><br />Refresh to restart.', false);
+          this.message('You defeated the alien armada and saved humanity!<br /><br />Refresh to restart.', false);
         }
+      }
+
+      if (sprite.enemy && sprite.won) {
+        this.message('You failed to hold the line. People died horrible, exrutiatingly painful deaths ... Great job buddy.<br /><br />Refresh to restart.', false);
+      }
+      // ---------------------------------------------------------------------
+
+
+      // ---------------------------------------------------------------------
+      // If this is a missile, did it stop moving?
+      // ---------------------------------------------------------------------
+      if (sprite.isMissile && previous_position.y == sprite.position.y) {
+        sprite.dead = true;
       }
       // ---------------------------------------------------------------------
 
       this.sprites[i] = sprite;
     }    
   } // play
+
+
+  loadMissile(position) {
+    let last_index = this.sprites.length - 1;
+    let sprite     = this.sprites[last_index];
+
+    if (sprite.isMissile) {
+      return; // you can only have one missile on the screen 
+    }
+
+    let missile = this.loadImage({
+      id: this.missile, // identifies which piece is on the map; not the sprite id
+      position: {
+        x: 0,
+        y: 0
+      }
+    });
+
+    missile.isMissile  = true;
+    missile.velocity.y = -missile.speed; // going up
+    missile.position.x = position.x;
+    missile.position.y = position.y - 10;    
+
+    this.sprites.push(missile);    
+  }
 
   /**
    * message
