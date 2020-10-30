@@ -31,6 +31,18 @@ div#message {
 
 header {
   text-align:center;
+  width:550px;
+  margin:auto;
+
+  h1 small {
+    display:block;
+    font-size:0.6em;
+  }
+
+  ul {
+    position:relative;
+    text-align:left;    
+  }
 }
 
 h1, p {
